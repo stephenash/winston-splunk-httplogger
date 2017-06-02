@@ -44,9 +44,13 @@ Create a new instance of `SplunkStreamEvent`. Takes the following configuration:
  * **config.splunk.token:** the Splunk HTTP Event Collector token
  * **[config.level=info]:** logging level to use, will show up as the `severity`
    field of an event
- * **[config.splunk.source=winston]:** the source for the events sent to Splunk
- * **[config.splunk.sourcetype=winston-splunk-logger]:** the sourcetype for the
+ * **[config.splunk.payloadMetadata]** - The metadata about the message payload (_not_ about the event).
+ * **[config.splunk.payloadMetadata.host]** - the host attribute for the events sent to Splunk.
+ * **[config.splunk.payloadMetadata.index]** - the index for the events sent to Splunk.
+ * **[config.splunk.payloadMetadata.source=winston]:** the source for the events sent to Splunk
+ * **[config.splunk.payloadMetadata.sourcetype=winston-splunk-logger]:** the sourcetype for the
    events sent to Splunk
+ * **[config.splunk.payloadMetadata.time]** - the time attribute for the events sent to Splunk.
  * **[config.splunk.host=localhost]:** the Splunk HTTP Event Collector host
  * **[config.splunk.maxRetries=0]:** how many times to retry the splunk logger
  * **[config.splunk.port=8088]:** the Splunk HTTP Event Collector port

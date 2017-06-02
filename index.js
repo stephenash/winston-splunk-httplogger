@@ -30,8 +30,12 @@ var SplunkLogger = require('splunk-logging').Logger;
  * @param {string} [config.level=info] - the minimum level to log
  * @param {object} config.splunk - the Splunk Logger settings
  * @param {string} config.splunk.token - the Splunk HTTP Event Collector token
- * @param {string} [config.splunk.source=winston] - the source for the events sent to Splunk
- * @param {string} [config.splunk.sourcetype=winston-splunk-logger] - the sourcetype for the events sent to Splunk
+ * @param {object} [config.splunk.payloadMetadata] - The metadata about the message payload (_not_ about the event).
+ * @param {string} [config.splunk.payloadMetadata.host] - the host attribute for the events sent to Splunk.
+ * @param {string} [config.splunk.payloadMetadata.index] - the index for the events sent to Splunk.
+ * @param {string} [config.splunk.payloadMetadata.source=winston] - the source for the events sent to Splunk
+ * @param {string} [config.splunk.payloadMetadata.sourcetype=winston-splunk-logger] - the sourcetype for the events sent to Splunk
+ * @param {number} [config.splunk.payloadMetadata.time] - the time attribute for the events sent to Splunk.
  * @param {string} [config.splunk.host=localhost] - the Splunk HTTP Event Collector host
  * @param {number} [config.splunk.maxRetries=0] - How many times to retry the splunk logger
  * @param {number} [config.splunk.port=8088] - the Splunk HTTP Event Collector port
@@ -66,17 +70,31 @@ var SplunkStreamEvent = function (config) {
 
   // If source/sourcetype are mentioned in the splunk object, then store the
   // defaults in this and delete from the splunk object
-  this.defaultMetadata = {
+  this.payloadMetadata = {
     source: 'winston',
     sourcetype: 'winston-splunk-logger'
   };
-  if (config.splunk.source) {
-    this.defaultMetadata.source = config.splunk.source;
-    delete config.splunk.source;
-  }
-  if (config.splunk.sourcetype) {
-    this.defaultMetadata.sourcetype = config.splunk.sourcetype;
-    delete config.splunk.sourcetype;
+
+  if (config.splunk.payloadMetadata) {
+    if (config.splunk.payloadMetadata.host) {
+      this.payloadMetadata.host = config.splunk.payloadMetadata.host;
+    }
+
+    if (config.splunk.payloadMetadata.index) {
+      this.payloadMetadata.index = config.splunk.payloadMetadata.index;
+    }
+
+    if (config.splunk.payloadMetadata.source) {
+      this.payloadMetadata.source = config.splunk.payloadMetadata.source;
+    }
+
+    if (config.splunk.payloadMetadata.sourcetype) {
+      this.payloadMetadata.sourcetype = config.splunk.payloadMetadata.sourcetype;
+    }
+
+    if (config.splunk.payloadMetadata.time) {
+      this.payloadMetadata.time = config.splunk.payloadMetadata.time;
+    }
   }
 
   // This gets around a problem with setting maxBatchCount
@@ -125,10 +143,7 @@ SplunkStreamEvent.prototype.log = function (level, msg, meta, callback) {
     message: {
       msg: msg
     },
-    metadata: {
-      source: this.defaultMetadata.source,
-      sourcetype: this.defaultMetadata.sourcetype
-    },
+    metadata: this.payloadMetadata,
     severity: level
   };
 

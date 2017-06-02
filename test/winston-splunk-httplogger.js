@@ -80,4 +80,55 @@ describe('createLogger', function () {
     var s = new SplunkStreamEvent({ splunk: { eventFormatter: 'foo', token: 'foo' } });
     assert.strictEqual('foo', s.server.eventFormatter);
   });
+
+  describe('payloadMetadata fields', function () {
+    it('should have default values', function () {
+      var s = new SplunkStreamEvent({ splunk: { token: 'foo' } });
+
+      var expected = { source: 'winston', sourcetype: 'winston-splunk-logger' };
+      assert.deepStrictEqual(expected, s.payloadMetadata);
+    });
+
+    it('should not have default values for sourcetype when it is not defined', function () {
+      var s = new SplunkStreamEvent({ splunk: {
+        token: 'foo',
+        payloadMetadata: {
+          source: 'custom-source'
+        }
+      } });
+
+      var expected = { source: 'custom-source', sourcetype: 'winston-splunk-logger' };
+      assert.deepStrictEqual(expected, s.payloadMetadata);
+    });
+
+    it('should support the host, index, and time attributes', function () {
+      var s = new SplunkStreamEvent({ splunk: {
+        token: 'foo',
+        payloadMetadata: {
+          host: 'custom-host',
+          index: 'custom-index',
+          time: 1234567890
+        }
+      } });
+
+      var expected = {
+        host: 'custom-host',
+        index: 'custom-index',
+        source: 'winston',
+        sourcetype: 'winston-splunk-logger',
+        time: 1234567890
+      };
+      assert.deepStrictEqual(expected, s.payloadMetadata);
+    });
+
+    it('shouldn\'t support custom attributes', function () {
+      var s = new SplunkStreamEvent({ splunk: {
+        token: 'foo',
+        payloadMetadata: {
+          foo: 1
+        }
+      } });
+      assert.equal(null, s.payloadMetadata.foo);
+    });
+  });
 });
